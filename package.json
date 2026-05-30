@@ -1,0 +1,63 @@
+{
+  "name": "app-hubspot-sariyanta",
+  "type": "module",
+  "description": "Getting started with CMS React",
+  "scripts": {
+    "start": "concurrently -n css,hs -c blue,green \"vite build --watch\" \"pnpm --filter web-sariyanta-theme start\"",
+    "build:css": "vite build",
+    "prettier": "prettier . --check",
+    "format": "prettier . --write",
+    "build": "vite build",
+    "upload": "pnpm build && hs project upload -p dev",
+    "upload:prod": "pnpm build && hs project upload -p prod",
+    "lint": "eslint . --fix",
+    "typecheck": "tsc -p src/theme/sariyanta/tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepare": "husky"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^25.9.1",
+    "@types/react": "^18",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/coverage-v8": "^4.1.7",
+    "concurrently": "^9.2.1",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7",
+    "eslint-plugin-react-hooks": "^7",
+    "eslint-plugin-unused-imports": "^4",
+    "husky": "^9",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^15",
+    "prettier": "^3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^5",
+    "typescript-eslint": "^8",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.7"
+  }
+}

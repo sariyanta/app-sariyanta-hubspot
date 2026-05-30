@@ -1,0 +1,23 @@
+{
+  "name": "web-sariyanta-theme",
+  "version": "1.0.0",
+  "description": "CMS React starter theme",
+  "scripts": {
+    "start": "hs-cms-dev-server . --generateFieldsTypes",
+    "deploy": "hs project upload"
+  },
+  "type": "module",
+  "keywords": [],
+  "dependencies": {
+    "@hubspot/cms-components": "latest",
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "react": "^18.3.1",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "@hubspot/cms-dev-server": "latest",
+    "vite": "^8.0.14"
+  }
+}

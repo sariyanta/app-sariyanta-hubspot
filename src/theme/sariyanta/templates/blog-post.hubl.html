@@ -1,0 +1,15 @@
+<!--
+  templateType: blog_post
+  isAvailableForNewContent: true
+  label: Blog post
+  screenshotPath: ../template-previews/blog.png
+-->
+{% extends "./layouts/base.hubl.html" %}
+
+{% block body %}
+
+  <article class="prose mx-auto">
+    {{ content.post_body }}
+  </article>
+
+{% endblock body %}

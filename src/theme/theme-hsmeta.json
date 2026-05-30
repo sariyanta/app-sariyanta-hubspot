@@ -1,0 +1,8 @@
+{
+  "uid": "app_sariyanta_theme",
+  "type": "theme",
+  "config": {
+    "themePath": "sariyanta",
+    "secretNames": []
+  }
+}

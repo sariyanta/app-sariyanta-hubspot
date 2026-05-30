@@ -1,0 +1,12 @@
+<!--
+  templateType: blog_listing
+  isAvailableForNewContent: true
+  label: Blog listing
+  screenshotPath: ../template-previews/blog-listing.png
+-->
+{% extends "./layouts/base.hubl.html" %}
+
+{% block body %}
+  {% dnd_area "page" label="Main content" %}
+  {% end_dnd_area %}
+{% endblock body%}

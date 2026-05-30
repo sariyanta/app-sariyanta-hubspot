@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+dist
+build
+coverage
+src/theme/sariyanta/styles/theme.hubl.css
+pnpm-lock.yaml
+package-lock.json
+**/*.hubl.html
+**/*-hsmeta.json
