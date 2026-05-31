@@ -1,3 +1,9 @@
 {
-  "label": "web-sariyanta-hs"
+  "label": "web-sariyanta-hs",
+  "buildConfig": {
+    "healthchecks": {
+      "enabled": true,
+      "strict": true
+    }
+  }
 }

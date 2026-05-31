@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "CMS React starter theme",
   "scripts": {
-    "start": "hs-cms-dev-server . --generateFieldsTypes",
+    "start": "hs-cms-dev-server . --generateFieldsTypes --ssl",
     "deploy": "hs project upload"
   },
   "type": "module",

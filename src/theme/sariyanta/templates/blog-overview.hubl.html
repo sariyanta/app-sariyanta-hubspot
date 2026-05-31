@@ -7,6 +7,31 @@
 {% extends "./layouts/base.hubl.html" %}
 
 {% block body %}
-  {% dnd_area "page" label="Main content" %}
+  {% dnd_area "page" label="Above Blog Overview" %}
   {% end_dnd_area %}
-{% endblock body%}
+  {# Build the pruned `BlogPostSummary[]` DTO from HubSpot's `contents` array so
+     only render-relevant keys cross into React (ADR-0001); the raw content
+     objects never reach the module. Dates are formatted here so no date lib
+     ships client-side. `metaDescription` + `postSummary` ride along so React can
+     compute the excerpt (ADR-0002). #}
+  {% set posts = [] %}
+  {% for content in contents %}
+    {% set tag_names = [] %}
+    {% for tag in content.tag_list %}
+      {% do tag_names.append(tag.name) %}
+    {% endfor %}
+
+    {% do posts.append({
+      "title": content.name,
+      "url": content.absolute_url,
+      "blogName": content.parent_blog.name,
+      "tags": tag_names,
+      "dateFormatted": content.publish_date | format_datetime("MMMM d, yyyy"),
+      "dateISO": content.publish_date | format_datetime("yyyy-MM-dd"),
+      "metaDescription": content.meta_description,
+      "postSummary": content.post_summary
+    }) %}
+  {% endfor %}
+
+  {% module "blog_overview" path="../components/modules/BlogOverview" posts="{{ posts }}" %}
+{% endblock body %}

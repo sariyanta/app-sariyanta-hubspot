@@ -3,6 +3,7 @@ import { Island, ModuleProps } from '@hubspot/cms-components';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { badgeVariants } from '@/components/ui/badge';
+import { Container } from '@/components/ui/container';
 import type { Article } from '@/interfaces';
 
 import BlogArticleFieldsType from './fields.type';
@@ -25,8 +26,8 @@ export const BlogArticle = ({ hublParameters }: BlogArticleProps) => {
   const eyebrow = article.tags[0]?.name ?? article.blogName;
 
   return (
-    <div className="mx-auto grid w-full max-w-2xl grid-cols-1 gap-10 xl:max-w-5xl xl:grid-cols-[minmax(0,1fr)_var(--container-2xs)]">
-      <article className="px-4 pt-10 pb-24 sm:px-6 xl:pr-0">
+    <Container className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_var(--container-2xs)]">
+      <article className="pt-10 pb-24">
         {article.useFeaturedImage && article.featuredImage && (
           <div className="mb-10 overflow-hidden rounded-xl">
             <AspectRatio ratio={16 / 9}>
@@ -127,7 +128,7 @@ export const BlogArticle = ({ hublParameters }: BlogArticleProps) => {
           toc={toc}
         />
       )}
-    </div>
+    </Container>
   );
 };
 
