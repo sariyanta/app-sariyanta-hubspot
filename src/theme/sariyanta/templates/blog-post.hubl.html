@@ -7,9 +7,51 @@
 {% extends "./layouts/base.hubl.html" %}
 
 {% block body %}
+  {% if is_in_blog_post_editor %}
+    {# Inline-edit surface: HubSpot's rich-text editor only binds to this raw
+       post_body node, so the editor sees a plain prose column. Published
+       layout fidelity comes from Preview, not the inline editor. See
+       docs/adr/0001-react-blog-article-with-pruned-dto.md #}
+    <article class="prose mx-auto pt-20">
+      {{ content.post_body }}
+    </article>
+  {% else %}
+    {# Build the pruned `article` DTO from the full content object so only
+       render-relevant keys cross into React (ADR-0001). Dates are formatted
+       here so no date lib ships client-side; tag URLs are pre-composed. #}
+    {% set article_tags = [] %}
+    {% for tag in content.tag_list %}
+      {% do article_tags.append({
+        "name": tag.name,
+        "url": content.parent_blog.absolute_url ~ "/tag/" ~ tag.slug
+      }) %}
+    {% endfor %}
 
-  <article class="prose mx-auto">
-    {{ content.post_body }}
-  </article>
+    {# Author is optional: a post may have none. Build the author DTO only when
+       a display name exists, otherwise pass null so React skips the byline. #}
+    {% set article_author = none %}
+    {% if content.blog_post_author.display_name %}
+      {% set article_author = {
+        "displayName": content.blog_post_author.display_name,
+        "avatar": content.blog_post_author.avatar
+      } %}
+    {% endif %}
 
+    {% set article = {
+      "title": content.title,
+      "blogName": content.parent_blog.name,
+      "useFeaturedImage": content.use_featured_image,
+      "featuredImage": content.featured_image,
+      "featuredImageAltText": content.featured_image_alt_text,
+      "featuredImageWidth": content.featured_image_width,
+      "featuredImageHeight": content.featured_image_height,
+      "author": article_author,
+      "publishDateFormatted": content.publish_date | format_datetime("MMMM d, yyyy"),
+      "publishDateISO": content.publish_date | format_datetime("yyyy-MM-dd"),
+      "tags": article_tags,
+      "postBody": content.post_body
+    } %}
+
+    {% module "blog_post" path="../components/modules/BlogArticle" article="{{ article }}"  %}
+  {% endif %}
 {% endblock body %}
