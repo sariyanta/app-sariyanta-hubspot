@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { BlogPostSummary } from '@/interfaces';
+import type { BlogPostSummary, Category, Pagination } from '@/interfaces';
 
 import { BlogOverview } from './component';
 
@@ -20,8 +20,26 @@ function makePost(overrides: Partial<BlogPostSummary> = {}): BlogPostSummary {
   };
 }
 
-function renderOverview(posts: BlogPostSummary[]) {
-  return render(<BlogOverview fieldValues={{}} hublParameters={{ posts }} />);
+const singlePage: Pagination = {
+  currentPage: 1,
+  lastPage: 1,
+  prevUrl: null,
+  nextUrl: null,
+};
+
+function renderOverview(
+  posts: BlogPostSummary[],
+  {
+    categories = [],
+    pagination = singlePage,
+  }: { categories?: Category[]; pagination?: Pagination } = {},
+) {
+  return render(
+    <BlogOverview
+      fieldValues={{}}
+      hublParameters={{ posts, categories, pagination }}
+    />,
+  );
 }
 
 describe('BlogOverview', () => {
@@ -97,6 +115,49 @@ describe('BlogOverview', () => {
     renderOverview([]);
 
     expect(screen.getByText(/no posts yet/i)).toBeInTheDocument();
-    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('renders the category tab row above the grid', () => {
+    renderOverview([makePost()], {
+      categories: [
+        { label: 'All Posts', url: '/blog', isActive: true },
+        { label: 'HubSpot', url: '/blog/tag/hubspot', isActive: false },
+      ],
+    });
+
+    expect(
+      screen.getByRole('navigation', { name: /categories/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'HubSpot' })).toHaveAttribute(
+      'href',
+      '/blog/tag/hubspot',
+    );
+  });
+
+  it('renders pagination controls when there is more than one page', () => {
+    renderOverview([makePost()], {
+      pagination: {
+        currentPage: 1,
+        lastPage: 2,
+        prevUrl: null,
+        nextUrl: '/blog/page/2',
+      },
+    });
+
+    expect(
+      screen.getByRole('navigation', { name: /pagination/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /older/i })).toHaveAttribute(
+      'href',
+      '/blog/page/2',
+    );
+  });
+
+  it('omits pagination controls on a single-page listing', () => {
+    renderOverview([makePost()]);
+
+    expect(
+      screen.queryByRole('navigation', { name: /pagination/i }),
+    ).not.toBeInTheDocument();
   });
 });

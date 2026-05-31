@@ -33,5 +33,37 @@
     }) %}
   {% endfor %}
 
-  {% module "blog_overview" path="../components/modules/BlogOverview" posts="{{ posts }}" %}
+  {# Category tabs: one per blog tag (auto-listed, no curation) plus a leading
+     "All Posts". HubSpot routes tag pages through this same `blog_listing`
+     template, so each tab is a plain link back into this module. The current
+     tag is exposed as `tag` on a tag listing page (none on the blog root), and
+     `isActive` is derived from its slug. #}
+  {% set current_tag_slug = tag.slug if tag else none %}
+  {% set categories = [{
+    "label": "All Posts",
+    "url": group.absolute_url,
+    "isActive": current_tag_slug is none
+  }] %}
+  {% for blog_tag in blog_tags(group.id, 250) %}
+    {% do categories.append({
+      "label": blog_tag.name,
+      "url": blog_tag_url(group.id, blog_tag.slug),
+      "isActive": blog_tag.slug == current_tag_slug
+    }) %}
+  {% endfor %}
+
+  {# Server-side pagination DTO. HubSpot paginates newest-first, so the next
+     page (higher number) holds older posts; the boundary pages get a null URL
+     so React hides that control. #}
+  {% set pagination = {
+    "currentPage": current_page_num,
+    "lastPage": last_page_num,
+    "prevUrl": blog_page_link(current_page_num - 1) if current_page_num > 1 else none,
+    "nextUrl": blog_page_link(current_page_num + 1) if current_page_num < last_page_num else none
+  } %}
+
+  {% module "blog_overview" path="../components/modules/BlogOverview"
+     posts="{{ posts }}"
+     categories="{{ categories }}"
+     pagination="{{ pagination }}" %}
 {% endblock body %}
