@@ -1,5 +1,5 @@
 import { useActiveHeading } from './hooks';
-import type { TocEntry } from './utils';
+import type { TocEntry } from './table-of-contents';
 
 interface TableOfContentsProps {
   toc: TocEntry[];

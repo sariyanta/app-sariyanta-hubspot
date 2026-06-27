@@ -1,5 +1,7 @@
 import { Island, ModuleProps } from '@hubspot/cms-components';
 
+import { buildTableOfContents, highlightCodeBlocks } from '@/common';
+import TableOfContentsIsland from '@/common/toc?island';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { badgeVariants } from '@/components/ui/badge';
@@ -7,13 +9,7 @@ import { Container } from '@/components/ui/container';
 import type { Article } from '@/interfaces';
 
 import BlogArticleFieldsType from './fields.type';
-import TableOfContentsIsland from './toc?island';
-import {
-  extractHeader,
-  getInitials,
-  buildTableOfContents,
-  highlightCodeBlocks,
-} from './utils';
+import { extractHeader, getInitials } from './utils';
 
 interface BlogArticleProps extends Omit<
   ModuleProps<BlogArticleFieldsType>,
