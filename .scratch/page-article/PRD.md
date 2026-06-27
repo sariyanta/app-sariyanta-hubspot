@@ -1,0 +1,177 @@
+# PageArticle
+
+Status: needs-triage
+
+## Problem Statement
+
+We have a polished long-form reading experience for blog posts (the
+`BlogArticle` module: prose styling, server-side syntax highlighting, and a
+sticky table-of-contents sidebar). But that experience is locked to blog posts.
+When an editor wants the same long-form, well-typeset article look on a
+**standalone page** (an about page, a guide, a legal/long-form page), there is
+no module to reach for. They would have to rebuild the prose treatment by hand
+with generic rich-text modules and get no table of contents.
+
+The blog-post reading experience and the standalone-page authoring experience
+have drifted apart, and the page side is empty.
+
+## Solution
+
+Introduce **`PageArticle`**: an inline-authored counterpart to `BlogArticle`
+that an editor can drag into any page dnd_area. It renders the _same_ long-form
+layout — optional eyebrow, optional title, prose body, and a table-of-contents
+sidebar — but sources its content from its **own module fields** instead of from
+a blog post.
+
+The two modules form a vocabulary pair:
+
+- **`BlogArticle`** renders blog-post content from a pruned `Article` DTO
+  (author, publish date, tags, blog name, `content.post_body`). It _is_ the
+  blog-post template body.
+- **`PageArticle`** renders inline-authored content from module fields
+  (`eyebrow`, `title`, `post body`). It is a draggable block placed into a page
+  dnd_area.
+
+Both share one prose rendering pipeline (table-of-contents builder, server-side
+code highlighter, TOC island), which is lifted out of `BlogArticle` into a
+shared `common/` location so neither module owns the other's internals.
+
+## User Stories
+
+1. As a content editor, I want to drag a `PageArticle` module into a page
+   dnd_area, so that I can add a long-form article section without rebuilding it
+   from generic rich-text blocks.
+2. As a content editor, I want a rich-text `post body` field on the module, so
+   that I can write and format the article content directly in the page editor.
+3. As a content editor, I want the `post body` field to be required, so that an
+   empty, purposeless `PageArticle` is never left on a page by accident.
+4. As a content editor, I want sensible default body text in a freshly dropped
+   module, so that I immediately see what the module is for.
+5. As a content editor, I want an optional `eyebrow` text field, so that I can
+   show a small uppercased category/label above the title — and have it simply
+   not render when I leave it blank.
+6. As a content editor, I want an optional `title` text field, so that I can give
+   the article section a heading — and have it omitted when I leave it blank.
+7. As a content editor, I want all three fields laid out flat in the sidebar
+   (no nested groups), so that the module is fast to fill in.
+8. As a site visitor, I want the page article to use the same prose typography as
+   blog posts, so that long-form pages read as cleanly as the blog.
+9. As a site visitor, I want code blocks inside a page article to be
+   syntax-highlighted, so that technical content on standalone pages is readable.
+10. As a site visitor, I want a table-of-contents sidebar generated from the
+    article's headings, so that I can navigate a long page article.
+11. As a site visitor, I want the table of contents to disappear when the article
+    has no headings, so that I never see an empty sidebar.
+12. As a site visitor on a small screen, I want the table-of-contents sidebar to
+    behave exactly as it does on blog posts (hidden below the xl breakpoint), so
+    that the mobile reading experience is consistent.
+13. As a site visitor, I want anchored headings to scroll into view with the same
+    offset as blog posts, so that in-page navigation lands correctly.
+14. As a content editor, I want the `PageArticle` to render its own centered
+    container and two-column layout, so that dropping it into a full-width dnd row
+    looks identical to a published blog post.
+15. As a developer, I want the table-of-contents builder and code highlighter to
+    live in a shared `common/` location, so that a fix to either lands once and
+    benefits both modules.
+16. As a developer, I want `BlogArticle` to keep its blog-only helpers
+    (header extraction, author initials) private, so that the shared surface is
+    only the genuinely shared prose pipeline.
+17. As a developer, I want `PageArticle` to NOT extract a heading/lead from the
+    body, so that the eyebrow/title come from fields and the body is rendered
+    as-authored.
+18. As a maintainer, I want the `BlogArticle` / `PageArticle` distinction
+    captured in CONTEXT.md and an ADR, so that the next contributor does not
+    re-derive why there are two modules.
+
+## Implementation Decisions
+
+**New module — `PageArticle`**
+
+- A new React module under the theme's modules directory with `component.tsx`,
+  `index.ts`, and the autogenerated `fields.type.ts`.
+- Unlike `BlogArticle` (whose `fields` array is empty because it is fed a HubL
+  DTO), `PageArticle` is **fields-driven**. `index.ts` declares a populated
+  `fields` array and a `meta.label` of `PageArticle`.
+- Fields (flat, no groups):
+  - `eyebrow` — text, optional
+  - `title` — text, optional
+  - `post body` — richtext, required, with default body text
+- Rendering: own `<Container>` + the same two-column grid as `BlogArticle`
+  (`minmax(0,1fr)_var(--container-2xs)`) → optional eyebrow (mono / uppercased
+  styling matching `BlogArticle`) → optional `<h1>` title → prose body → TOC
+  sidebar island. Empty optional fields are guarded with the same `&&` pattern
+  used in `BlogArticle`.
+- Pipeline inside the component: run the body through `buildTableOfContents`,
+  then `highlightCodeBlocks`, then render. **No** `extractHeader` call — the
+  masthead comes from fields, not from carving the body.
+- No featured image, no byline, no tags, no publish date. Those are blog-only.
+
+**Shared prose pipeline — lifted to `common/`**
+
+- Move `table-of-contents` (`buildTableOfContents`) and `highlight-code-blocks`
+  (`highlightCodeBlocks`) — both pure HTML-in / HTML-out deep modules with a
+  small, stable interface — and the `toc` island component out of the
+  `BlogArticle` module into a shared `common/` location under the theme
+  (importable via the `@/` alias).
+- Re-point `BlogArticle`'s imports at the new location.
+- `extract-header` and `get-initials` remain private to `BlogArticle` (they are
+  blog-DTO-specific).
+
+**Page template wiring**
+
+- Provide a page template that exposes a dnd_area, so `PageArticle` is droppable.
+  The existing `page.hubl.html` template body is currently empty; it (or a new
+  page template) gains a dnd_area.
+
+**Documentation**
+
+- New ADR (`docs/adr/0004-*`) recording: `PageArticle` as the field-driven,
+  inline-authored counterpart to `BlogArticle`, and the extraction of the shared
+  prose pipeline into `common/`. It extends ADR-0001 rather than overturning it.
+- CONTEXT.md gains the `BlogArticle` / `PageArticle` vocabulary pair and the
+  one-line distinction.
+
+## Testing Decisions
+
+Good tests here assert **external behavior** — what an editor's field values
+produce in the rendered output — not internal wiring. The prior art is
+`BlogArticle/component.test.tsx` (render-and-assert on the produced DOM) and the
+existing pure-function specs for the table-of-contents and highlighter.
+
+- **`PageArticle` component** — new test, mirroring
+  `BlogArticle/component.test.tsx`:
+  - renders the eyebrow when set; omits it when blank
+  - renders the title `<h1>` when set; omits it when blank
+  - renders the prose body
+  - renders the TOC sidebar when the body has headings; omits it when there are
+    none
+- **Relocated deep modules** — the existing `table-of-contents` and
+  `highlight-code-blocks` specs move to `common/` unchanged and must continue to
+  pass. No new assertions; the move must not weaken coverage.
+- These deep modules are the right unit-test targets because their interface
+  (HTML in → HTML/structure out) is simple, pure, and stable.
+
+## Out of Scope
+
+- HubL template / dnd_area is not unit-tested — there is no prior art for testing
+  HubL templates in this repo, so template wiring is verified manually.
+- No author, publish date, tags, blog name, or featured image on `PageArticle` —
+  those remain blog-only.
+- No optional "hide table of contents" toggle field (considered, not chosen — the
+  module always renders its self-contained layout for parity with `BlogArticle`).
+- No changes to `BlogArticle`'s behavior or output beyond re-pointing its imports
+  at the relocated `common/` pipeline.
+- No new prose features (footnotes, callouts, etc.) — `PageArticle` reuses the
+  existing pipeline as-is.
+
+## Further Notes
+
+- The deliberate asymmetry is the heart of the design: `BlogArticle` is
+  DTO-fed (content lives on the blog post), `PageArticle` is fields-driven
+  (content lives on the module). Same pipeline, opposite content source.
+- If `PageArticle` ends up frequently placed inside narrow multi-column dnd rows,
+  a future enhancement could add an optional "show table of contents" toggle so
+  the sidebar can be dropped in tight columns. Explicitly deferred.
+- Naming: `PageArticle` was chosen over the generic `Article` (which collides
+  with the existing `Article` DTO interface) and over `ProseArticle` (which
+  decouples from "page" but breaks the one-to-one parallel with `BlogArticle`).

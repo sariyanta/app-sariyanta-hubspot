@@ -4,6 +4,28 @@ Domain language for the Sariyanta HubSpot theme.
 
 ## Glossary
 
+### BlogArticle / PageArticle
+
+A vocabulary pair: two React modules that render the **same** long-form layout
+(optional eyebrow, optional title, prose body, sticky "On this page" sidebar)
+from **opposite** content sources.
+
+- **`BlogArticle`** is _DTO-fed_: content lives on the blog post and crosses the
+  HubL→React boundary as the [[pruned-dto]] `Article` (docs/adr/0001). It is the
+  blog-post template body, and carves its masthead out of the body
+  (`extractHeader`).
+- **`PageArticle`** is _fields-driven_: content lives on the module's own fields
+  (`eyebrow`, `title`, `post_body`), authored inline and dragged into a page
+  `dnd_area`. Its masthead comes from the fields, so it does **not** call
+  `extractHeader`. `post_body` is required with default text; `eyebrow`/`title`
+  are optional.
+
+Both share one prose pipeline — `buildTableOfContents`, `highlightCodeBlocks`,
+and the TOC island — lifted into the theme's `common/` directory (`@/common`)
+so a fix lands once for both. Blog-only helpers (`extract-header`,
+`get-initials`) stay private to `BlogArticle`. See
+docs/adr/0004-page-article-field-driven-counterpart.md.
+
 ### Blog overview
 
 The blog **listing** page — HubSpot's `blog_listing` template type. Renders the
