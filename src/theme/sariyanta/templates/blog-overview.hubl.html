@@ -38,7 +38,7 @@
      template, so each tab is a plain link back into this module. The current
      tag is exposed as `tag` on a tag listing page (none on the blog root), and
      `isActive` is derived from its slug. #}
-  {% set current_tag_slug = tag.slug if tag else none %}
+  {% set current_tag_slug = blog_tag.slug if blog_tag else none %}
   {% set categories = [{
     "label": "All Posts",
     "url": group.absolute_url,

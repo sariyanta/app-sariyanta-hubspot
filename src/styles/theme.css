@@ -1,6 +1,10 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 
+/* highlight.js token colors for server-highlighted code blocks (ADR-0003).
+   Dark-only theme; prose owns the <pre> box, hljs paints only the tokens. */
+@import 'highlight.js/styles/github-dark.css';
+
 @source "../theme/sariyanta/**/*.tsx";
 @source "../theme/sariyanta/**/*.hubl.html";
 
@@ -33,4 +37,18 @@
   --color-card-foreground: hsl(222.2 84% 4.9%);
 
   --radius: 0.5rem;
+}
+
+/* Let prose own the code-block frame (padding, radius) with the github-dark
+   surface, and strip hljs's own background so there's no double-fill. Token
+   colors come from the imported theme above. Inline <code> is untouched. */
+@layer components {
+  .prose pre {
+    background-color: #0d1117;
+  }
+
+  .prose pre code.hljs {
+    padding: 0;
+    background: transparent;
+  }
 }

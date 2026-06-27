@@ -1,2 +1,4 @@
 packages:
   - 'src/theme/sariyanta'
+allowBuilds:
+  esbuild: true

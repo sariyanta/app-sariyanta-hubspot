@@ -8,7 +8,12 @@ import type { Article } from '@/interfaces';
 
 import BlogArticleFieldsType from './fields.type';
 import TableOfContentsIsland from './toc?island';
-import { extractHeader, getInitials, buildTableOfContents } from './utils';
+import {
+  extractHeader,
+  getInitials,
+  buildTableOfContents,
+  highlightCodeBlocks,
+} from './utils';
 
 interface BlogArticleProps extends Omit<
   ModuleProps<BlogArticleFieldsType>,
@@ -23,6 +28,7 @@ export const BlogArticle = ({ hublParameters }: BlogArticleProps) => {
   const { article } = hublParameters;
   const { heading, lead, body } = extractHeader(article.postBody);
   const { html, toc } = buildTableOfContents(body);
+  const highlightedHtml = highlightCodeBlocks(html);
   const eyebrow = article.tags[0]?.name ?? article.blogName;
 
   return (
@@ -115,7 +121,7 @@ export const BlogArticle = ({ hublParameters }: BlogArticleProps) => {
 
         <div
           className="prose mt-10 [&_h2]:scroll-mt-20 [&_h3]:scroll-mt-20"
-          dangerouslySetInnerHTML={{ __html: html }}
+          dangerouslySetInnerHTML={{ __html: highlightedHtml }}
         />
       </article>
 

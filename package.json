@@ -48,6 +48,7 @@
     "eslint-plugin-react": "^7",
     "eslint-plugin-react-hooks": "^7",
     "eslint-plugin-unused-imports": "^4",
+    "highlight.js": "^11.11.1",
     "husky": "^9",
     "jsdom": "^29.1.1",
     "lint-staged": "^15",
