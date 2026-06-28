@@ -7,31 +7,32 @@
 {% extends "./layouts/base.hubl.html" %}
 
 {% block body %}
-  {% dnd_area "page" label="Above Blog Overview" %}
-  {% end_dnd_area %}
   {# Build the pruned `BlogPostSummary[]` DTO from HubSpot's `contents` array so
      only render-relevant keys cross into React (ADR-0001); the raw content
      objects never reach the module. Dates are formatted here so no date lib
      ships client-side. `metaDescription` + `postSummary` ride along so React can
-     compute the excerpt (ADR-0002). #}
+     compute the excerpt (ADR-0002). `contents` is absent in the editor/preview
+     and on some listing contexts, so only loop when it exists. #}
   {% set posts = [] %}
-  {% for content in contents %}
-    {% set tag_names = [] %}
-    {% for tag in content.tag_list %}
-      {% do tag_names.append(tag.name) %}
-    {% endfor %}
+  {% if contents %}
+    {% for content in contents %}
+      {% set tag_names = [] %}
+      {% for tag in content.tag_list %}
+        {% do tag_names.append(tag.name) %}
+      {% endfor %}
 
-    {% do posts.append({
-      "title": content.name,
-      "url": content.absolute_url,
-      "blogName": content.parent_blog.name,
-      "tags": tag_names,
-      "dateFormatted": content.publish_date | format_datetime("MMMM d, yyyy"),
-      "dateISO": content.publish_date | format_datetime("yyyy-MM-dd"),
-      "metaDescription": content.meta_description,
-      "postSummary": content.post_summary
-    }) %}
-  {% endfor %}
+      {% do posts.append({
+        "title": content.name,
+        "url": content.absolute_url,
+        "blogName": content.parent_blog.name,
+        "tags": tag_names,
+        "dateFormatted": content.publish_date | format_datetime("MMMM d, yyyy"),
+        "dateISO": content.publish_date | format_datetime("yyyy-MM-dd"),
+        "metaDescription": content.meta_description,
+        "postSummary": content.post_summary
+      }) %}
+    {% endfor %}
+  {% endif %}
 
   {# Category tabs: one per blog tag (auto-listed, no curation) plus a leading
      "All Posts". HubSpot routes tag pages through this same `blog_listing`
@@ -62,8 +63,17 @@
     "nextUrl": blog_page_link(current_page_num + 1) if current_page_num < last_page_num else none
   } %}
 
-  {% module "blog_overview" path="../components/modules/BlogOverview"
-     posts="{{ posts }}"
-     categories="{{ categories }}"
-     pagination="{{ pagination }}" %}
+  {% dnd_area "main_area" label="Blog Overview" %}
+    {% dnd_section %}
+      {% dnd_column %}
+        {% dnd_row %}
+          {% dnd_module path="../components/modules/BlogOverview"
+             posts="{{ posts }}"
+             categories="{{ categories }}"
+             pagination="{{ pagination }}" %}
+          {% end_dnd_module %}
+        {% end_dnd_row %}
+      {% end_dnd_column %}
+    {% end_dnd_section %}
+  {% end_dnd_area %}
 {% endblock body %}
