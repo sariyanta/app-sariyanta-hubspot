@@ -5,9 +5,10 @@
   "scripts": {
     "start": "concurrently -n css,hs -c blue,green \"vite build --watch\" \"pnpm --filter web-sariyanta-theme start\"",
     "build:css": "vite build",
+    "build:fonts": "node scripts/build-fonts-css.mjs",
     "prettier": "prettier . --check",
     "format": "prettier . --write",
-    "build": "vite build",
+    "build": "pnpm build:fonts && vite build",
     "upload": "pnpm build && hs project upload -p dev",
     "upload:prod": "pnpm build && hs project upload -p prod",
     "lint": "eslint . --fix",

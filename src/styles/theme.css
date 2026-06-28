@@ -9,6 +9,19 @@
 @source "../theme/sariyanta/**/*.hubl.html";
 
 @theme {
+  /* Self-hosted typefaces (faces declared in styles/fonts.css).
+     --font-sans drives body via Tailwind's --default-font-family;
+     --font-mono drives <code>/<pre>; --font-serif is applied to
+     headings in the base layer below. */
+  --font-sans:
+    'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif:
+    'Newsreader', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    'Liberation Mono', 'Courier New', monospace;
+
   --color-border: hsl(214.3 31.8% 91.4%);
   --color-input: hsl(214.3 31.8% 91.4%);
   --color-ring: hsl(222.2 84% 4.9%);
@@ -37,6 +50,19 @@
   --color-card-foreground: hsl(222.2 84% 4.9%);
 
   --radius: 0.5rem;
+}
+
+/* Headings render in the display serif (Newsreader); body stays Inter.
+   Covers semantic headings site-wide and prose article headings. */
+@layer base {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
+  }
 }
 
 /* Let prose own the code-block frame (padding, radius) with the github-dark
