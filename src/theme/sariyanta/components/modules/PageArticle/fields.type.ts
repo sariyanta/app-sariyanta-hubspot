@@ -6,5 +6,6 @@ type PageArticleFieldsType = DefaultValues<{
   eyebrow: { type: 'text'; default: string };
   title: { type: 'text'; default: string };
   post_body: { type: 'richtext'; default: string };
+  show_toc: { type: 'boolean'; default: boolean };
 }>;
 export default PageArticleFieldsType;

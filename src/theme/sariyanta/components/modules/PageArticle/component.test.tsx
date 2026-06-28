@@ -31,12 +31,17 @@ interface FieldValues {
   eyebrow?: string;
   title?: string;
   post_body?: string;
+  show_toc?: boolean;
 }
 
 function renderPage(fieldValues: FieldValues = {}) {
   return render(
     <PageArticle
-      fieldValues={{ post_body: '<p>Body paragraph.</p>', ...fieldValues }}
+      fieldValues={{
+        post_body: '<p>Body paragraph.</p>',
+        show_toc: true,
+        ...fieldValues,
+      }}
     />,
   );
 }
@@ -96,6 +101,17 @@ describe('PageArticle', () => {
 
   it('renders no table of contents when the body has no headings', () => {
     renderPage({ post_body: '<p>Just prose, no headings.</p>' });
+
+    expect(
+      screen.queryByRole('heading', { name: /on this page/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('omits the table of contents when show_toc is off', () => {
+    renderPage({
+      show_toc: false,
+      post_body: '<p>Intro.</p><h2>Overview</h2><p>x</p><h3>Details</h3>',
+    });
 
     expect(
       screen.queryByRole('heading', { name: /on this page/i }),

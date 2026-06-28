@@ -9,12 +9,19 @@ import PageArticleFieldsType from './fields.type';
 export const PageArticle = ({
   fieldValues,
 }: ModuleProps<PageArticleFieldsType>) => {
-  const { eyebrow, title, post_body } = fieldValues;
+  const { eyebrow, title, post_body, show_toc } = fieldValues;
   const { html, toc } = buildTableOfContents(post_body);
   const highlightedHtml = highlightCodeBlocks(html);
+  const showToc = show_toc && toc.length > 0;
 
   return (
-    <Container className="grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_var(--container-2xs)]">
+    <Container
+      className={
+        showToc
+          ? 'grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_var(--container-2xs)]'
+          : undefined
+      }
+    >
       <article className="pt-10 pb-24">
         {eyebrow && (
           <p
@@ -37,7 +44,7 @@ export const PageArticle = ({
         />
       </article>
 
-      {toc.length > 0 && (
+      {showToc && (
         <Island
           module={TableOfContentsIsland}
           hydrateOn="idle"
