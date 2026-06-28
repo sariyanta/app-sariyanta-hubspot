@@ -19,8 +19,22 @@ interface BlogOverviewProps extends Omit<
   };
 }
 
+// `dnd_module` instances dropped fresh in the editor (and preview renders)
+// arrive without HubL params, so default every field to keep server render
+// from crashing on `.length`/destructure of `undefined`.
+const EMPTY_PAGINATION: Pagination = {
+  currentPage: 1,
+  lastPage: 1,
+  prevUrl: null,
+  nextUrl: null,
+};
+
 export const BlogOverview = ({ hublParameters }: BlogOverviewProps) => {
-  const { posts, categories, pagination } = hublParameters;
+  const {
+    posts = [],
+    categories = [],
+    pagination = EMPTY_PAGINATION,
+  } = hublParameters ?? {};
 
   return (
     <Container className="py-16">
